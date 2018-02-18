@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+
+  <!-- Code from video 8 - https://egghead.io/lessons/react-redux-react-counter-example !-->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js'></script>
+  <script crossorigin src='https://unpkg.com/react@16/umd/react.production.min.js'></script>
+  <script crossorigin src='https://unpkg.com/react-dom@16/umd/react-dom.production.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/expect/1.20.2/expect.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.js'></script>
+
+  <script type='text/babel'>
+  // script inlined to avoid cross-origin issues when reading from file
+  const counter = (state = 0, action) => {
+    switch (action.type) {
+      case 'INCREMENT':
+        return state + 1;
+      case 'DECREMENT':
+        return state - 1;
+      default:
+        return state;
+    }
+  }
+
+  const { createStore } = Redux;
+  const store = createStore(counter);
+
+  const Counter = ({
+    value,
+    onIncrement,
+    onDecrement
+  }) => (
+    <div>
+      <h1>{value}</h1>
+      <button onClick={onIncrement}>+</button>
+      <button onClick={onDecrement}>-</button>
+    </div>
+  );
+
+  const render = () => {
+    ReactDOM.render(
+      <Counter
+        value={store.getState()}
+        onIncrement={() =>
+          store.dispatch({
+            type: 'INCREMENT'
+          })
+        }
+        onDecrement={() =>
+          store.dispatch({
+            type: 'DECREMENT'
+          })
+        }
+      />,
+      document.getElementById('root')
+    );
+  }
+
+  store.subscribe(render);
+  render();
+
+  expect (
+    counter(0, { type: 'INCREMENT' })
+  ).toEqual(1);
+
+  expect (
+    counter(1, { type: 'INCREMENT' })
+  ).toEqual(2);
+
+  expect (
+    counter(2, { type: 'DECREMENT' })
+  ).toEqual(1);
+
+  expect (
+    counter(1, { type: 'DECREMENT' })
+  ).toEqual(0);
+
+  expect (
+      counter(1, { type: 'SOMETHING_ELSE' })
+  ).toEqual(1);
+
+  expect (
+    counter(undefined, {})
+  ).toEqual(0);
+
+  console.log("Tests passed!")
+</script>
+</head>
+
+<body>
+  <div id='root'></div>
+</body>
+
+</html>
