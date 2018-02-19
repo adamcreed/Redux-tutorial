@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+
+  <!-- Code from videos 15+, with some pieces from earlier parts - https://egghead.io/lessons/react-redux-react-todo-list-example-adding-a-todo !-->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js'></script>
+  <script crossorigin src='https://unpkg.com/react@16/umd/react.production.min.js'></script>
+  <script crossorigin src='https://unpkg.com/react-dom@16/umd/react-dom.production.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.js'></script>
+
+  <script type='text/babel'>
+  // script inlined to avoid cross-origin issues when reading from file
+  const todos = (state = [], action) => {
+    switch (action.type) {
+      case 'ADD_TODO':
+      return [
+        ...state,
+        addTodo(action)
+      ];
+      case 'TOGGLE_TODO':
+      return state.map(todo => toggleTodo(todo, action));
+      default:
+      return state;
+    };
+  };
+
+  const addTodo = action => {
+    return {
+      id: action.id,
+      text: action.text,
+      completed: false
+    };
+  };
+
+  const toggleTodo = (state, action) => {
+    if (state.id !== action.id) {
+      return state;
+    }
+
+    return {
+      ...state,
+      completed: !state.completed
+    };
+  };
+
+  const visibilityFilter = (state = 'SHOW_ALL', action) => {
+      switch (action.type) {
+        case 'SET_VISIBILITY_FILTER':
+          return action.filter;
+        default:
+          return state;
+      }
+  };
+
+  const { createStore, combineReducers } = Redux;
+  const { Component } = React;
+  const todoApp = combineReducers({todos, visibilityFilter});
+  const store = createStore(todoApp);
+  let nextTodoId = 0;
+
+  const todoButton = (text) => {
+    store.dispatch({
+      type: 'ADD_TODO',
+      text: text.input.value,
+      id: nextTodoId++
+    })
+    text.input.value = '';
+  }
+
+  class TodoApp extends Component {
+  render() {
+    //I'd like to refactor this more, but it'll have to do
+    return (
+      <div>
+        <input ref={node => {
+          this.input = node;
+        }} />
+
+        <button onClick={() => {todoButton(this)}}>
+        Add Todo
+       </button>
+
+       <ul>
+         {this.props.todos.map(todo =>
+           <li key={todo.id}>
+             {todo.text}
+           </li>
+         )}
+       </ul>
+     </div>
+   )
+ };
+}
+
+const render = () => {
+  ReactDOM.render(
+    <TodoApp
+      todos={store.getState().todos}
+    />,
+    document.getElementById('root')
+  )
+};
+
+store.subscribe(render);
+render();
+
+</script>
+</head>
+
+<body>
+  <div id='root'></div>
+</body>
+
+</html>
